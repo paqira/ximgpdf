@@ -1,0 +1,64 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ximgpdf"
+dynamic = ["version"]
+description = 'Extract images from pdf'
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+keywords = ["pdf", "image", "jpeg", "png"]
+authors = [
+    { name = "Kentaro Tatsumi", email = "paqira.2019@gmail.com" },
+]
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = [
+    "PyMuPDF>=1.0.0",
+    "click>=8.0.0",
+]
+
+[project.urls]
+Documentation = "https://github.com/paqira/ximgpdf"
+Issues = "https://github.com/paqira/ximgpdf/issues"
+Source = "https://github.com/paqira/ximgpdf"
+
+[project.scripts]
+ximgpdf = "ximgpdf:main"
+
+[tool.hatch.version]
+path = "ximgpdf.py"
+
+[tool.hatch.envs.types]
+extra-dependencies = [
+    "mypy>=1.0.0",
+]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive --ignore-missing-imports {args:ximgpdf.py}"
+
+#[tool.coverage.run]
+#source_pkgs = ["ximgpdf", "tests"]
+#branch = true
+#parallel = true
+#omit = []
+
+#[tool.coverage.paths]
+#ximgpdf = ["ximgpdf", ]
+#tests = ["tests", ]
+
+[tool.coverage.report]
+exclude_lines = [
+    "no cov",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
