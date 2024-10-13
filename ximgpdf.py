@@ -43,13 +43,15 @@ def main(file: Iterable[Path], out: None | str = None):
             page_width = format_width(page_no)
 
             for i, page in enumerate(doc):
-                image_no = len(page.get_images())
+                images = page.get_images()
+
+                image_no = len(images)
                 image_width = format_width(image_no)
 
                 image_count += image_no
 
                 # FIXME: should use get_image_info(xref=True)?
-                for j, img in enumerate(page.get_images()):
+                for j, img in enumerate(images):
                     xref = img[0]
 
                     if (image := doc.extract_image(xref)) is None:
