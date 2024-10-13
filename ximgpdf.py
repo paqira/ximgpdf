@@ -38,12 +38,12 @@ def main(file: Iterable[Path], out: None | str = None):
         dst.mkdir(parents=True, exist_ok=True)
 
         image_count = 0
-        with fitz.open(src) as doc:
-            page_no = len(doc)
+        with fitz.open(src) as fitz_doc:
+            page_no = len(fitz_doc)
             page_width = format_width(page_no)
 
-            for i, page in enumerate(doc):
-                images = page.get_images()
+            for i, fitz_page in enumerate(fitz_doc):
+                images = fitz_page.get_images()
 
                 image_no = len(images)
                 image_width = format_width(image_no)
@@ -54,7 +54,7 @@ def main(file: Iterable[Path], out: None | str = None):
                 for j, img in enumerate(images):
                     xref = img[0]
 
-                    if (image := doc.extract_image(xref)) is None:
+                    if (image := fitz_doc.extract_image(xref)) is None:
                         continue
 
                     ext = image["ext"]
