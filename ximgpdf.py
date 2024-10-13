@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 import click
 import fitz
 
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 
 
 def format_width(n: int) -> int:
