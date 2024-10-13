@@ -16,7 +16,7 @@ pipx install ximgpdf
 ## Usage
 
 ```shell
-ximgpdf -o output a.pdf b.pdf
+ximgpdf -o output_dir a.pdf b.pdf
 ```
 
 ## Licence
