@@ -32,39 +32,58 @@ def main(file: Iterable[Path], out: None | str = None):
     out_dir.mkdir(parents=True, exist_ok=True)
 
     for src in map(Path, file):
+        try:
+            fitz_doc = fitz.open(src, filetype="pdf")
+        except Exception as e:  # noqa: BLE001
+            ctx = click.get_current_context()
+            ctx.fail(str(e))
+
         click.echo(f"✅ found {src}")
 
         dst = out_dir / src.stem
-        dst.mkdir(parents=True, exist_ok=True)
+        try:
+            dst.mkdir(parents=True, exist_ok=True)
+        except Exception as e:  # noqa: BLE001
+            ctx = click.get_current_context()
+            ctx.fail(str(e))
 
         image_count = 0
-        with fitz.open(src) as fitz_doc:
-            page_no = len(fitz_doc)
-            page_width = format_width(page_no)
 
-            for i, fitz_page in enumerate(fitz_doc):
-                images = fitz_page.get_images()
+        page_no = len(fitz_doc)
+        page_width = format_width(page_no)
 
-                image_no = len(images)
-                image_width = format_width(image_no)
+        for i, fitz_page in enumerate(fitz_doc):
+            images = fitz_page.get_images()
 
-                image_count += image_no
+            image_no = len(images)
+            image_width = format_width(image_no)
 
-                # FIXME: should use get_image_info(xref=True)?
-                for j, img in enumerate(images):
-                    xref = img[0]
+            image_count += image_no
 
-                    if (image := fitz_doc.extract_image(xref)) is None:
-                        continue
+            # FIXME: should use get_image_info(xref=True)?
+            for j, img in enumerate(images):
+                xref = img[0]
 
-                    ext = image["ext"]
-                    data = image["image"]
+                if (image := fitz_doc.extract_image(xref)) is None:
+                    continue
 
-                    folder = dst / f"{i:0{page_width}}"
+                ext = image["ext"]
+                data = image["image"]
+
+                folder = dst / f"{i:0{page_width}}"
+                try:
                     folder.mkdir(parents=True, exist_ok=True)
+                except Exception as e:  # noqa: BLE001
+                    ctx = click.get_current_context()
+                    ctx.fail(str(e))
 
-                    name = folder / f"{j:0{image_width}}.{ext}"
+                name = folder / f"{j:0{image_width}}.{ext}"
+
+                try:
                     name.write_bytes(data)
+                except Exception as e:  # noqa: BLE001
+                    ctx = click.get_current_context()
+                    ctx.fail(str(e))
 
         pages = "pages" if page_no > 1 else "page"
         images = "images" if image_count > 1 else "image"
