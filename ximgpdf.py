@@ -69,3 +69,7 @@ def main(file: Iterable[Path], out: None | str = None):
         pages = "pages" if page_no > 1 else "page"
         images = "images" if image_count > 1 else "image"
         click.echo(f"✨ extract {image_count} {images} from {page_no} {pages}")
+
+
+if __name__ == "__main__":
+    main()
