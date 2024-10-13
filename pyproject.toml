@@ -70,4 +70,4 @@ exclude_lines = [
 skip-excluded-dirs = true
 
 [tool.hatch.build.targets.sdist]
-only-include = ["ximgpdf", ]
+only-include = ["ximgpdf.py", ]
