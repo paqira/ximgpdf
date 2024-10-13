@@ -18,7 +18,7 @@ def format_width(n: int) -> int:
 
 @click.command()
 @click.argument("file", nargs=-1, type=click.Path(exists=True))
-@click.option("-o", "--out", default=None, help="Output directory, defaulting <CWD>.")
+@click.option("-o", "--out", type=click.Path(), default=None, help="Output directory, defaulting <CWD>.")
 @click.version_option(__version__)
 def main(file: Iterable[Path], out: None | str = None):
     """Extract images from pdf"""
