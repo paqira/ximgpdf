@@ -52,21 +52,21 @@ def main(file: Iterable[Path], out: None | str = None):
             ctx = click.get_current_context()
             ctx.fail(str(e))
 
-        image_count = 0
+        total_images = 0
 
-        page_no = len(fitz_doc)
-        page_width = format_width(page_no)
+        total_pages = len(fitz_doc)
+        page_width = format_width(total_pages)
 
-        for i, fitz_page in enumerate(fitz_doc):
+        for page_no, fitz_page in enumerate(fitz_doc):
             images = fitz_page.get_images()
 
             image_no = len(images)
             image_width = format_width(image_no)
 
-            image_count += image_no
+            total_images += image_no
 
             # FIXME: should use get_image_info(xref=True)?
-            for j, img in enumerate(images):
+            for img_no, img in enumerate(images):
                 xref = img[0]
 
                 if (image := fitz_doc.extract_image(xref)) is None:
@@ -75,14 +75,14 @@ def main(file: Iterable[Path], out: None | str = None):
                 ext = image["ext"]
                 data = image["image"]
 
-                folder = dst / f"{i:0{page_width}}"
+                folder = dst / f"{page_no:0{page_width}}"
                 try:
                     folder.mkdir(parents=True, exist_ok=True)
                 except Exception as e:  # noqa: BLE001
                     ctx = click.get_current_context()
                     ctx.fail(str(e))
 
-                name = folder / f"{j:0{image_width}}.{ext}"
+                name = folder / f"{img_no:0{image_width}}.{ext}"
 
                 try:
                     name.write_bytes(data)
@@ -90,9 +90,9 @@ def main(file: Iterable[Path], out: None | str = None):
                     ctx = click.get_current_context()
                     ctx.fail(str(e))
 
-        pages = "pages" if page_no > 1 else "page"
-        images = "images" if image_count > 1 else "image"
-        click.echo(f"✨ extract {image_count} {images} from {page_no} {pages}")
+        pages = "pages" if total_pages > 1 else "page"
+        images = "images" if total_images > 1 else "image"
+        click.echo(f"✨ extract {total_images} {images} from {total_pages} {pages}")
 
 
 if __name__ == "__main__":
