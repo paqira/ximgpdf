@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+    from typing import NoReturn
 
 import click
 import fitz
@@ -14,6 +15,11 @@ __version__ = "0.0.3"
 
 def format_width(n: int) -> int:
     return len(str(n))
+
+
+def fail(e: Exception) -> NoReturn:
+    ctx = click.get_current_context()
+    ctx.fail(str(e))
 
 
 @click.command()
@@ -34,8 +40,7 @@ def main(file: Iterable[Path], out: None | str = None):
         try:
             fitz_doc = fitz.open(src, filetype="pdf")
         except Exception as e:  # noqa: BLE001
-            ctx = click.get_current_context()
-            ctx.fail(str(e))
+            fail(e)
 
         click.echo(f"✅ found {src}")
 
@@ -44,8 +49,7 @@ def main(file: Iterable[Path], out: None | str = None):
         try:
             dst.mkdir(parents=True, exist_ok=True)
         except Exception as e:  # noqa: BLE001
-            ctx = click.get_current_context()
-            ctx.fail(str(e))
+            fail(e)
 
         total_images = 0
 
@@ -75,16 +79,14 @@ def main(file: Iterable[Path], out: None | str = None):
                 try:
                     folder.mkdir(parents=True, exist_ok=True)
                 except Exception as e:  # noqa: BLE001
-                    ctx = click.get_current_context()
-                    ctx.fail(str(e))
+                    fail(e)
 
                 name = folder / f"{img_no:0{image_width}}.{ext}"
 
                 try:
                     name.write_bytes(data)
                 except Exception as e:  # noqa: BLE001
-                    ctx = click.get_current_context()
-                    ctx.fail(str(e))
+                    fail(e)
 
         pages = "pages" if total_pages > 1 else "page"
         images = "images" if total_images > 1 else "image"
