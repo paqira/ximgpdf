@@ -30,12 +30,6 @@ def main(file: Iterable[Path], out: None | str = None):
 
     out_dir = Path.cwd() if out is None else Path(out)
 
-    try:
-        out_dir.mkdir(parents=True, exist_ok=True)
-    except Exception as e:  # noqa: BLE001
-        ctx = click.get_current_context()
-        ctx.fail(str(e))
-
     for src in map(Path, file):
         try:
             fitz_doc = fitz.open(src, filetype="pdf")
