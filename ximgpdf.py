@@ -22,7 +22,7 @@ def format_width(n: int) -> int:
 @click.version_option(__version__)
 def main(file: Iterable[Path], out: None | str = None):
     """Extract images from pdf"""
-
+    # print help if no file given
     if not file:
         ctx = click.get_current_context()
         click.echo(ctx.get_help())
@@ -46,6 +46,7 @@ def main(file: Iterable[Path], out: None | str = None):
         click.echo(f"✅ found {src}")
 
         dst = out_dir / src.stem
+        # make empty dist dir, even the pdf contains no images
         try:
             dst.mkdir(parents=True, exist_ok=True)
         except Exception as e:  # noqa: BLE001
@@ -76,6 +77,7 @@ def main(file: Iterable[Path], out: None | str = None):
                 data = image["image"]
 
                 folder = dst / f"{page_no:0{page_width}}"
+                # make page dir, only if the page contains image
                 try:
                     folder.mkdir(parents=True, exist_ok=True)
                 except Exception as e:  # noqa: BLE001
