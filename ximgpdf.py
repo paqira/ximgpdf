@@ -1,11 +1,11 @@
 from __future__ import annotations
 
+from contextlib import contextmanager
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
-    from typing import NoReturn
 
 import click
 import fitz
@@ -17,9 +17,13 @@ def format_width(n: int) -> int:
     return len(str(n))
 
 
-def fail(e: Exception) -> NoReturn:
-    ctx = click.get_current_context()
-    ctx.fail(str(e))
+@contextmanager
+def context():
+    try:
+        yield
+    except Exception as e:  # noqa: BLE001
+        ctx = click.get_current_context()
+        ctx.fail(str(e))
 
 
 @click.command()
@@ -37,19 +41,15 @@ def main(file: Iterable[Path], out: None | str = None):
     out_dir = Path.cwd() if out is None else Path(out)
 
     for src in map(Path, file):
-        try:
+        with context():
             fitz_doc = fitz.open(src, filetype="pdf")
-        except Exception as e:  # noqa: BLE001
-            fail(e)
 
         click.echo(f"✅ found {src}")
 
         dst = out_dir / src.stem
         # make empty dist dir, even the pdf contains no images
-        try:
+        with context():
             dst.mkdir(parents=True, exist_ok=True)
-        except Exception as e:  # noqa: BLE001
-            fail(e)
 
         total_images = 0
 
@@ -76,17 +76,13 @@ def main(file: Iterable[Path], out: None | str = None):
 
                 folder = dst / f"{page_no:0{page_width}}"
                 # make page dir, only if the page contains image
-                try:
+                with context():
                     folder.mkdir(parents=True, exist_ok=True)
-                except Exception as e:  # noqa: BLE001
-                    fail(e)
 
                 name = folder / f"{img_no:0{image_width}}.{ext}"
 
-                try:
+                with context():
                     name.write_bytes(data)
-                except Exception as e:  # noqa: BLE001
-                    fail(e)
 
         pages = "pages" if total_pages > 1 else "page"
         images = "images" if total_images > 1 else "image"
