@@ -18,7 +18,7 @@ def format_width(n: int) -> int:
 
 
 @contextmanager
-def context():
+def capture_err():
     try:
         yield
     except Exception as e:  # noqa: BLE001
@@ -41,14 +41,14 @@ def main(file: Iterable[Path], out: None | str = None):
     out_dir = Path.cwd() if out is None else Path(out)
 
     for src in map(Path, file):
-        with context():
+        with capture_err():
             fitz_doc = fitz.open(src, filetype="pdf")
 
         click.echo(f"✅ found {src}")
 
         dst = out_dir / src.stem
         # make empty dist dir, even the pdf contains no images
-        with context():
+        with capture_err():
             dst.mkdir(parents=True, exist_ok=True)
 
         total_images = 0
@@ -76,12 +76,12 @@ def main(file: Iterable[Path], out: None | str = None):
 
                 folder = dst / f"{page_no:0{page_width}}"
                 # make page dir, only if the page contains image
-                with context():
+                with capture_err():
                     folder.mkdir(parents=True, exist_ok=True)
 
                 name = folder / f"{img_no:0{image_width}}.{ext}"
 
-                with context():
+                with capture_err():
                     name.write_bytes(data)
 
         pages = "pages" if total_pages > 1 else "page"
